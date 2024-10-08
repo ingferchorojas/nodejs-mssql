@@ -3,9 +3,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken'); // Importar jsonwebtoken
 
 const createUser = async (req, res) => {
-    const { password, first_name, last_name, document_number } = req.body;
-
-    if (!password || !first_name || !last_name || !document_number) {
+    const { username, password, first_name, last_name, phone } = req.body;
+    console.log(req.body)
+    if (!username || !password || !first_name || !last_name || !phone) {
         return res.status(400).json({ message: 'Todos los campos son requeridos' });
     }
 
@@ -13,10 +13,20 @@ const createUser = async (req, res) => {
         // Hash la contraseña
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Datos de inserción
+        const signupData = { 
+            username: username.trim(), 
+            password: hashedPassword, 
+            first_name: first_name.trim(), 
+            last_name: last_name.trim(), 
+            phone: phone.trim() 
+        };
+
         const result = await sql.query`
-            INSERT INTO app_users (password, first_name, last_name, document_number, created_at, updated_at)
-            VALUES (${hashedPassword}, ${first_name}, ${last_name}, ${document_number}, GETDATE(), GETDATE());
+            INSERT INTO app_users (username, password, first_name, last_name, phone, created_at, updated_at)
+            VALUES (${signupData.username}, ${signupData.password}, ${signupData.first_name}, ${signupData.last_name}, ${signupData.phone}, GETDATE(), GETDATE());
         `;
+        
         res.status(201).json({ message: 'Usuario creado correctamente', data: {}, success: true });
     } catch (error) {
         console.error(error);
@@ -25,16 +35,16 @@ const createUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-    const { document_number, password } = req.body;
+    const { username, password } = req.body;
 
-    if (!document_number || !password) {
+    if (!username || !password) {
         return res.status(400).json({ message: 'Todos los campos son requeridos' });
     }
 
     try {
-        // Buscar el usuario por el número de documento
+        // Buscar el usuario por el nombre de usuario
         const result = await sql.query`
-            SELECT password, first_name, last_name, document_number FROM app_users WHERE document_number = ${document_number};
+            SELECT password, first_name, last_name, username FROM app_users WHERE username = ${username};
         `;
 
         if (result.recordset.length === 0) {
@@ -52,7 +62,7 @@ const loginUser = async (req, res) => {
 
         // Generar un token JWT
         const token = jwt.sign(
-            { document_number: user.document_number, first_name: user.first_name, last_name: user.first_name },
+            { username: user.username, first_name: user.first_name, last_name: user.last_name },
             'fox_app',
             { expiresIn: '10000000h' }
         );
@@ -63,6 +73,7 @@ const loginUser = async (req, res) => {
         res.status(500).json({ message: 'Error en el login', data: {}, success: false });
     }
 };
+
 
 const getUserData = async (req, res) => {
     try {
