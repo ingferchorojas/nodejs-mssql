@@ -96,8 +96,51 @@ const getUserData = async (req, res) => {
     }
 };
 
+const changePassword = async (req, res) => {
+    const { username, oldPassword, newPassword } = req.body;
+
+    if (!username || !oldPassword || !newPassword) {
+        return res.status(400).json({ message: 'Todos los campos son requeridos' });
+    }
+
+    try {
+        // Buscar el usuario por su username
+        const result = await sql.query`
+            SELECT password FROM app_users WHERE username = ${username};
+        `;
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const user = result.recordset[0];
+
+        // Verificar la contraseña actual
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: 'La contraseña actual es incorrecta' });
+        }
+
+        // Hash de la nueva contraseña
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+        // Actualizar la contraseña en la base de datos
+        await sql.query`
+            UPDATE app_users 
+            SET password = ${hashedNewPassword}, updated_at = GETDATE() 
+            WHERE username = ${username};
+        `;
+
+        res.status(200).json({ message: 'Contraseña cambiada exitosamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error cambiando la contraseña' });
+    }
+};
+
 module.exports = {
     createUser,
     loginUser,
-	getUserData
+	getUserData,
+    changePassword
 };
