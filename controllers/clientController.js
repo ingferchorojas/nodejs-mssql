@@ -3,6 +3,7 @@ const { sql } = require('../config/db');
 // Obtener datos de clientes
 const getClientData = async (req, res) => {
     try {
+        console.log("ver")
         const result = await sql.query`
             SELECT * FROM app_clients;
         `;

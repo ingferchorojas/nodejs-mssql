@@ -1,6 +1,7 @@
 const express = require('express');
 const { connectDB } = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const clientRoutes = require('./routes/clientRoutes');
 const cors = require('cors');
 const app = express();
 
@@ -14,6 +15,7 @@ connectDB();
 
 // Rutas
 app.use(userRoutes);
+app.use(clientRoutes);
 
 // Puerto de la aplicación
 const PORT = process.env.PORT || 3000;
