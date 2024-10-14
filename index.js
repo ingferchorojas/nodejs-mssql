@@ -8,7 +8,16 @@ const app = express();
 // Middleware para parsear JSON
 app.use(express.json());
 
-app.use(cors());
+// Configuración de CORS
+const corsOptions = {
+    origin: '*', // Permitir todos los orígenes
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Métodos permitidos
+    allowedHeaders: ['Content-Type', 'Authorization'], // Cabeceras permitidas
+    credentials: false, // No permitir credenciales (ajusta según tus necesidades)
+};
+
+// Usar CORS con las opciones configuradas
+app.use(cors(corsOptions));
 
 // Conectar a la base de datos
 connectDB();
