@@ -3,9 +3,8 @@ const { sql } = require('../config/db');
 // Obtener datos de clientes
 const getClientData = async (req, res) => {
     try {
-        console.log("ver")
         const result = await sql.query`
-            SELECT * FROM app_clients;
+            SELECT * FROM app_clients where user_id = ${req.user.id};
         `;
         
         res.status(200).json({ message: 'Clientes obtenidos correctamente', data: result.recordset, success: true });
@@ -25,8 +24,8 @@ const addClient = async (req, res) => {
 
     try {
         await sql.query`
-            INSERT INTO app_clients (name, address, phone, latitude, longitude, ruc_id, ruc_reason)
-            VALUES (${name.trim()}, ${address.trim()}, ${phone.trim()}, ${latitude}, ${longitude}, ${ruc_id.trim()}, ${ruc_reason.trim()});
+            INSERT INTO app_clients (name, address, phone, latitude, longitude, ruc_id, ruc_reason, user_id)
+            VALUES (${name.trim()}, ${address.trim()}, ${phone.trim()}, ${latitude}, ${longitude}, ${ruc_id.trim()}, ${ruc_reason.trim()}, ${req.user.id});
         `;
         res.status(201).json({ message: 'Cliente agregado correctamente', success: true });
     } catch (error) {

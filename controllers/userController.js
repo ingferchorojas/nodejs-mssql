@@ -44,7 +44,7 @@ const loginUser = async (req, res) => {
     try {
         // Buscar el usuario por el nombre de usuario
         const result = await sql.query`
-            SELECT password, first_name, last_name, username FROM app_users WHERE username = ${username};
+            SELECT * FROM app_users WHERE username = ${username};
         `;
 
         if (result.recordset.length === 0) {
@@ -62,7 +62,7 @@ const loginUser = async (req, res) => {
 
         // Generar un token JWT
         const token = jwt.sign(
-            { username: user.username, first_name: user.first_name, last_name: user.last_name },
+            { id: user.id, username: user.username, first_name: user.first_name, last_name: user.last_name },
             'fox_app',
             { expiresIn: '10000000h' }
         );
