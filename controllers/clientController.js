@@ -45,7 +45,7 @@ const deleteClient = async (req, res) => {
     try {
         const result = await sql.query`
             UPDATE app_clients 
-            SET delete = 1 
+            SET deleted = 1 
             WHERE client_id = ${clientId};
         `;
 
@@ -56,7 +56,7 @@ const deleteClient = async (req, res) => {
         res.status(200).json({ message: 'Cliente marcado como eliminado correctamente', success: true });
     } catch (error) {
         console.error('Error al marcar cliente como eliminado:', error);
-        res.status(500).json({ message: 'Error al actualizar cliente', success: false });
+        res.status(500).json({ message: 'Error al eliminar cliente', success: false });
     }
 };
 
