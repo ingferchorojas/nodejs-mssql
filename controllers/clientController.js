@@ -3,8 +3,12 @@ const { sql } = require('../config/db');
 // Obtener datos de clientes
 const getClientData = async (req, res) => {
     try {
+        if (!req.user || !req.user.id) {
+            return res.status(400).json({ message: 'Usuario no autenticado', success: false });
+        }
+
         const result = await sql.query`
-            SELECT * FROM app_clients where user_id = ${req.user.id};
+            SELECT * FROM app_clients WHERE user_id = ${req.user.id} AND deleted = 0;
         `;
         
         res.status(200).json({ message: 'Clientes obtenidos correctamente', data: result.recordset, success: true });
@@ -34,23 +38,25 @@ const addClient = async (req, res) => {
     }
 };
 
-// Eliminar un cliente
+// "Eliminar" un cliente actualizando el campo 'delete' a 1
 const deleteClient = async (req, res) => {
     const { clientId } = req.params;
 
     try {
         const result = await sql.query`
-            DELETE FROM app_clients WHERE client_id = ${clientId};
+            UPDATE app_clients 
+            SET delete = 1 
+            WHERE client_id = ${clientId};
         `;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: 'Cliente no encontrado', success: false });
         }
 
-        res.status(200).json({ message: 'Cliente eliminado correctamente', success: true });
+        res.status(200).json({ message: 'Cliente marcado como eliminado correctamente', success: true });
     } catch (error) {
-        console.error('Error deleting client:', error);
-        res.status(500).json({ message: 'Error al eliminar cliente', success: false });
+        console.error('Error al marcar cliente como eliminado:', error);
+        res.status(500).json({ message: 'Error al actualizar cliente', success: false });
     }
 };
 
