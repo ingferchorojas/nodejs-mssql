@@ -4,7 +4,7 @@ const { sql } = require('../config/db');
 const getProductData = async (req, res) => {
     try {
         const result = await sql.query`
-            SELECT * FROM app_products WHERE user_id = ${req.user.id};
+            SELECT * FROM app_products WHERE user_id = ${req.user.id} and deleted = 0;
         `;
         
         res.status(200).json({ message: 'Productos obtenidos correctamente', data: result.recordset, success: true });
@@ -40,17 +40,19 @@ const deleteProduct = async (req, res) => {
 
     try {
         const result = await sql.query`
-            DELETE FROM app_products WHERE id = ${productId} AND user_id = ${req.user.id};
+            UPDATE app_products 
+            SET deleted = 1 
+            WHERE id = ${productId} AND user_id = ${req.user.id};
         `;
 
         if (result.rowsAffected[0] === 0) {
             return res.status(404).json({ message: 'Producto no encontrado', success: false });
         }
 
-        res.status(200).json({ message: 'Producto eliminado correctamente', success: true });
+        res.status(200).json({ message: 'Producto marcado como eliminado correctamente', success: true });
     } catch (error) {
-        console.error('Error deleting product:', error);
-        res.status(500).json({ message: 'Error al eliminar producto', success: false });
+        console.error('Error al marcar producto como eliminado:', error);
+        res.status(500).json({ message: 'Error al actualizar el estado del producto', success: false });
     }
 };
 
