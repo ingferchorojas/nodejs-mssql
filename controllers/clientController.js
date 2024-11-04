@@ -88,9 +88,49 @@ const updateClient = async (req, res) => {
     }
 };
 
+// Buscar clientes por múltiples campos
+const searchClient = async (req, res) => {
+    try {
+        if (!req.user || !req.user.id) {
+            return res.status(400).json({ message: 'Usuario no autenticado', success: false });
+        }
+
+        const { name, address, phone } = req.query; // Suponiendo que se pasan como parámetros de consulta
+
+        // Construcción de la consulta
+        let query = `
+            SELECT * FROM app_clients 
+            WHERE user_id = ${req.user.id} AND deleted = 0
+        `;
+        const conditions = [];
+
+        if (name) {
+            conditions.push(`name LIKE '%${name.trim()}%'`);
+        }
+        if (address) {
+            conditions.push(`address LIKE '%${address.trim()}%'`);
+        }
+        if (phone) {
+            conditions.push(`phone LIKE '%${phone.trim()}%'`);
+        }
+
+        if (conditions.length > 0) {
+            query += ' AND ' + conditions.join(' AND ');
+        }
+
+        const result = await sql.query(query);
+        
+        res.status(200).json({ message: 'Clientes encontrados correctamente', data: result.recordset, success: true });
+    } catch (error) {
+        console.error('Error buscando clientes:', error);
+        res.status(500).json({ message: 'Error al buscar clientes', success: false });
+    }
+};
+
 module.exports = {
     getClientData,
     addClient,
     deleteClient,
-    updateClient
+    updateClient,
+    searchClient
 };

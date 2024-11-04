@@ -1,5 +1,5 @@
 const express = require('express');
-const { getClientData, addClient, deleteClient, updateClient } = require('../controllers/clientController');
+const { getClientData, addClient, deleteClient, updateClient, searchClient } = require('../controllers/clientController');
 const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
@@ -15,5 +15,8 @@ router.delete('/clients/:clientId', verifyToken, deleteClient);
 
 // Ruta para actualizar un cliente por ID (requiere autenticación)
 router.put('/clients/:clientId', verifyToken, updateClient);
+
+// Ruta para buscar clientes por múltiples campos (requiere autenticación)
+router.get('/clients/search', verifyToken, searchClient);
 
 module.exports = router;
