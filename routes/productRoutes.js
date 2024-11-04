@@ -1,11 +1,20 @@
 const express = require('express');
-const { getProductData, addProduct, deleteProduct, updateProduct } = require('../controllers/productController');
+const { 
+    getProductData, 
+    searchProduct, 
+    addProduct, 
+    deleteProduct, 
+    updateProduct 
+} = require('../controllers/productController');
 const verifyToken = require('../middleware/auth');
 
 const router = express.Router();
 
 // Ruta para obtener todos los productos (requiere autenticación)
 router.get('/products', verifyToken, getProductData);
+
+// Ruta para buscar productos (requiere autenticación)
+router.get('/products/search', verifyToken, searchProduct); // Nueva ruta para buscar productos
 
 // Ruta para agregar un nuevo producto (requiere autenticación)
 router.post('/products', verifyToken, addProduct);

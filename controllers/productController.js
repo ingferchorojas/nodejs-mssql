@@ -4,13 +4,36 @@ const { sql } = require('../config/db');
 const getProductData = async (req, res) => {
     try {
         const result = await sql.query`
-            SELECT * FROM app_products WHERE user_id = ${req.user.id} and deleted = 0;
+            SELECT * FROM app_products WHERE user_id = ${req.user.id} AND deleted = 0;
         `;
         
         res.status(200).json({ message: 'Productos obtenidos correctamente', data: result.recordset, success: true });
     } catch (error) {
         console.error('Error fetching product data:', error);
         res.status(500).json({ message: 'Error al obtener productos', success: false });
+    }
+};
+
+// Buscar productos
+const searchProduct = async (req, res) => {
+    const { term } = req.query; // Se obtiene el término de búsqueda de los parámetros de consulta
+
+    if (!term || term.trim() === '') {
+        return res.status(400).json({ message: 'El término de búsqueda es requerido', success: false });
+    }
+
+    try {
+        const result = await sql.query`
+            SELECT * FROM app_products 
+            WHERE user_id = ${req.user.id} 
+            AND deleted = 0 
+            AND (name LIKE ${'%' + term + '%'} OR code LIKE ${'%' + term + '%'});
+        `;
+        
+        res.status(200).json({ message: 'Productos encontrados correctamente', data: result.recordset, success: true });
+    } catch (error) {
+        console.error('Error fetching product data:', error);
+        res.status(500).json({ message: 'Error al buscar productos', success: false });
     }
 };
 
@@ -85,6 +108,7 @@ const updateProduct = async (req, res) => {
 
 module.exports = {
     getProductData,
+    searchProduct,
     addProduct,
     deleteProduct,
     updateProduct
