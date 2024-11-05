@@ -77,11 +77,11 @@ const loginUser = async (req, res) => {
 
 const getUserData = async (req, res) => {
     try {
-        const document_number = req.user.document_number; // Obtener el número de documento del token
+        const id = req.user.id; // Obtener el número de documento del token
 
         // Buscar el usuario en la base de datos usando el número de documento
         const result = await sql.query`
-            SELECT first_name, last_name, document_number FROM app_users WHERE document_number = ${document_number};
+            SELECT first_name, last_name, document_number FROM app_users WHERE id = ${id};
         `;
 
         if (result.recordset.length === 0) {
