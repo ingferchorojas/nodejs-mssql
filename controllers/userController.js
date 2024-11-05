@@ -81,7 +81,7 @@ const getUserData = async (req, res) => {
 
         // Buscar el usuario en la base de datos usando el número de documento
         const result = await sql.query`
-            SELECT first_name, last_name, document_number FROM app_users WHERE id = ${id};
+            SELECT * FROM app_users WHERE id = ${id};
         `;
 
         if (result.recordset.length === 0) {
