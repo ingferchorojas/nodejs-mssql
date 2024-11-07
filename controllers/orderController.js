@@ -4,7 +4,9 @@ const { sql } = require('../config/db');
 const getOrderData = async (req, res) => {
     try {
         const result = await sql.query`
-            SELECT * FROM app_orders WHERE user_id = ${req.user.id} AND deleted = 0;
+            SELECT * FROM app_orders 
+            WHERE user_id = ${req.user.id} AND deleted = 0 
+            ORDER BY created_at DESC;
         `;
         
         res.status(200).json({ message: 'Órdenes obtenidas correctamente', data: result.recordset, success: true });
