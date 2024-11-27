@@ -4,7 +4,7 @@ const { sql } = require('../config/db');
 const getProductData = async (req, res) => {
     try {
         const result = await sql.query`
-            SELECT * FROM app_products WHERE user_id = ${req.user.id} AND deleted = 0;
+            SELECT * FROM app_products WHERE deleted = 0;
         `;
         
         res.status(200).json({ message: 'Productos obtenidos correctamente', data: result.recordset, success: true });
@@ -25,8 +25,7 @@ const searchProduct = async (req, res) => {
     try {
         const result = await sql.query`
             SELECT * FROM app_products 
-            WHERE user_id = ${req.user.id} 
-            AND deleted = 0 
+            WHERE deleted = 0 
             AND (name LIKE ${'%' + term + '%'} OR code LIKE ${'%' + term + '%'});
         `;
         
@@ -65,7 +64,7 @@ const deleteProduct = async (req, res) => {
         const result = await sql.query`
             UPDATE app_products 
             SET deleted = 1 
-            WHERE id = ${productId} AND user_id = ${req.user.id};
+            WHERE id = ${productId};
         `;
 
         if (result.rowsAffected[0] === 0) {
@@ -92,7 +91,7 @@ const updateProduct = async (req, res) => {
         const result = await sql.query`
             UPDATE app_products 
             SET name = ${name.trim()}, description = ${description.trim()}, code = ${code.trim()}, prices = ${JSON.stringify(prices)}
-            WHERE id = ${productId} AND user_id = ${req.user.id};
+            WHERE id = ${productId};
         `;
 
         if (result.rowsAffected[0] === 0) {
